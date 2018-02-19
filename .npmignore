@@ -1,4 +1,13 @@
-yarn.lock
 node_modules
 .vscode
-demos
+demo
+test
+yarn.lock
+.gitignore
+CHANGELOG.md
+.travis.yml
+jsconfig.json
+rollup.config.js
+.babelrc
+.eslintrc
+.eslintignore
