@@ -4,7 +4,7 @@ const {Router, Get} = require('../../dist')
 class UserController {
   @Get('/')
   index (req, res, next) {
-    res.send('respond with a resource')
+    res.send('Router /user')
   }
 }
 
