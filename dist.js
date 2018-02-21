@@ -42,7 +42,7 @@ function scanDirModules(routesDir) {
       filenames = filenames.concat(subFiles);
     } else {
       debug('load the route file: %s', absFilePath);
-      require(absFilePath);
+      console.log(require(absFilePath));
     }
   };
 
@@ -82,31 +82,31 @@ function register(options) {
  *
  * @export
  * @param {string|RegExp} prefix 路由前缀
- * @param {express.RouterOptions} routerOption 路由选项
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {express.RouterOptions} routerOptions 路由选项
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {ClassDecorator}
  */
-function Router(prefix, routerOption) {
+function Router(prefix, routerOptions) {
   for (var _len = arguments.length, middlewares = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     middlewares[_key - 2] = arguments[_key];
   }
 
   // 判断是否有路由选项，没有则当做中间件来使用
-  if (typeof routerOption === 'function') {
-    middlewares.unshift(routerOption);
-    routerOption = undefined;
+  if (typeof routerOptions === 'function') {
+    middlewares.unshift(routerOptions);
+    routerOptions = undefined;
   }
 
   /**
    * 为类生成一个 router,
    * 该装饰器会在所有方法装饰器执行完后才执行
    *
-   * @param {Function} target 路由类对象
+   * @param {express.Handler} target 路由类对象
    */
-  return function (target) {
+  function mount(target) {
     var _app;
 
-    var router = express.Router(routerOption);
+    var router = express.Router(routerOptions);
     var _routeMethods = target.prototype._routeMethods;
     // 遍历挂载路由
     for (var method in _routeMethods) {
@@ -121,7 +121,9 @@ function Router(prefix, routerOption) {
     }
     delete target.prototype._routeMethods;
     (_app = app).use.apply(_app, [prefix].concat(middlewares, [router]));
-  };
+  }
+
+  return mount;
 }
 
 /**
@@ -129,7 +131,7 @@ function Router(prefix, routerOption) {
  *
  * @param {string} httpMethod 请求方法
  * @param {string|RegExp} pattern 请求路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function generateMethodDecorator(httpMethod, pattern, middlewares) {
@@ -151,7 +153,7 @@ function generateMethodDecorator(httpMethod, pattern, middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function Get(pattern) {
@@ -167,7 +169,7 @@ function Get(pattern) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function Post(pattern) {
@@ -183,7 +185,7 @@ function Post(pattern) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function Put(pattern) {
@@ -199,7 +201,7 @@ function Put(pattern) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function Delete(pattern) {
@@ -215,7 +217,7 @@ function Delete(pattern) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function All(pattern) {
@@ -232,7 +234,7 @@ function All(pattern) {
  * @export
  * @param {string} httpMethod http方法名
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function Custom(httpMethod, pattern) {

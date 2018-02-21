@@ -1,6 +1,6 @@
 {
   "name": "express-derouter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "help you use Decorators to define express routes",
   "main": "dist.js",
   "module": "src/index.js",
@@ -10,6 +10,12 @@
     "type": "git",
     "url": "git://github.com/kainstar/express-derouter"
   },
+  "files": [
+		"src/index.js",
+		"dist.js",
+		"index.d.ts"
+	],
+  "typings": "index.d.ts",
   "bugs": {
     "url": "https://github.com/kainstar/express-derouter/issues"
   },

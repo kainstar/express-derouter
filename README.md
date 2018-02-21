@@ -2,7 +2,7 @@
 
 Help you use Decorators to define express routes
 
-An achieve package of my blog —— [关于express路由管理的几种自动化方法](http://blog.kainstar.cn/2018/02/17/%E5%85%B3%E4%BA%8Eexpress%E8%B7%AF%E7%94%B1%E7%AE%A1%E7%90%86%E7%9A%84%E5%87%A0%E7%A7%8D%E8%87%AA%E5%8A%A8%E5%8C%96%E6%96%B9%E6%B3%95/)
+An achieve package of my blog —— [关于express路由管理的几种自动化方法](https://blog.kainstar.cn/2018/02/17/%E5%85%B3%E4%BA%8Eexpress%E8%B7%AF%E7%94%B1%E7%AE%A1%E7%90%86%E7%9A%84%E5%87%A0%E7%A7%8D%E8%87%AA%E5%8A%A8%E5%8C%96%E6%96%B9%E6%B3%95/)
 
 [![Travis](https://img.shields.io/travis/kainstar/express-deruter.svg)](https://github.com/kainstar/express-derouter)
 

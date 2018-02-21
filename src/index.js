@@ -67,25 +67,25 @@ export function register (options) {
  *
  * @export
  * @param {string|RegExp} prefix 路由前缀
- * @param {express.RouterOptions} routerOption 路由选项
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {express.RouterOptions} routerOptions 路由选项
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {ClassDecorator}
  */
-export function Router (prefix, routerOption, ...middlewares) {
+export function Router (prefix, routerOptions, ...middlewares) {
   // 判断是否有路由选项，没有则当做中间件来使用
-  if (typeof routerOption === 'function') {
-    middlewares.unshift(routerOption)
-    routerOption = undefined
+  if (typeof routerOptions === 'function') {
+    middlewares.unshift(routerOptions)
+    routerOptions = undefined
   }
 
   /**
    * 为类生成一个 router,
    * 该装饰器会在所有方法装饰器执行完后才执行
    *
-   * @param {Function} target 路由类对象
+   * @param {express.Handler} target 路由类对象
    */
-  return function (target) {
-    const router = express.Router(routerOption)
+  function mount (target) {
+    const router = express.Router(routerOptions)
     const _routeMethods = target.prototype._routeMethods
     // 遍历挂载路由
     for (const method in _routeMethods) {
@@ -100,7 +100,10 @@ export function Router (prefix, routerOption, ...middlewares) {
     }
     delete target.prototype._routeMethods
     app.use(prefix, ...middlewares, router)
+    return target
   }
+
+  return mount
 }
 
 /**
@@ -108,7 +111,7 @@ export function Router (prefix, routerOption, ...middlewares) {
  *
  * @param {string} httpMethod 请求方法
  * @param {string|RegExp} pattern 请求路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 function generateMethodDecorator (httpMethod, pattern, middlewares) {
@@ -130,7 +133,7 @@ function generateMethodDecorator (httpMethod, pattern, middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function Get (pattern, ...middlewares) {
@@ -142,7 +145,7 @@ export function Get (pattern, ...middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function Post (pattern, ...middlewares) {
@@ -154,7 +157,7 @@ export function Post (pattern, ...middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function Put (pattern, ...middlewares) {
@@ -166,7 +169,7 @@ export function Put (pattern, ...middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function Delete (pattern, ...middlewares) {
@@ -178,7 +181,7 @@ export function Delete (pattern, ...middlewares) {
  *
  * @export
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function All (pattern, ...middlewares) {
@@ -191,7 +194,7 @@ export function All (pattern, ...middlewares) {
  * @export
  * @param {string} httpMethod http方法名
  * @param {string|RegExp} pattern 路由路径
- * @param {Array<Function>} middlewares 中间件数组
+ * @param {Array<express.Handler>} middlewares 中间件数组
  * @returns {MethodDecorator}
  */
 export function Custom (httpMethod, pattern, ...middlewares) {
