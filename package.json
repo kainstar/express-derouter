@@ -12,10 +12,8 @@
   },
   "files": [
 		"src/index.js",
-		"dist.js",
-		"index.d.ts"
+		"dist.js"
 	],
-  "typings": "index.d.ts",
   "bugs": {
     "url": "https://github.com/kainstar/express-derouter/issues"
   },

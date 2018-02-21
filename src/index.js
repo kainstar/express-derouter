@@ -9,10 +9,10 @@ const debug = require('debug')('express:deroute')
 let app = null
 
 /**
- * 扫描并引入目录下的模块
+ * scan and require the module in the routesDir
  *
  * @private
- * @param {string} routesDir 路由目录
+ * @param {string} routesDir routes's root dir
  */
 function scanDirModules (routesDir) {
   if (!fs.existsSync(routesDir)) {
@@ -21,12 +21,12 @@ function scanDirModules (routesDir) {
   }
   let filenames = fs.readdirSync(routesDir)
   while (filenames.length) {
-    // 路由文件相对路径
+    // the relative path of router file
     const relativeFilePath = filenames.shift()
-    // 路由文件绝对路径
+    // the absolute path of router file
     const absFilePath = path.join(routesDir, relativeFilePath)
     if (fs.statSync(absFilePath).isDirectory()) {
-      // 是文件夹的情况下，读取子目录文件，添加到路由文件队列中
+      // if the file is directory, then read its sub file and add them to the router files queue
       const subFiles = fs.readdirSync(absFilePath).map(v => path.join(absFilePath.replace(routesDir, ''), v))
       filenames = filenames.concat(subFiles)
     } else {
@@ -37,12 +37,12 @@ function scanDirModules (routesDir) {
 }
 
 /**
- * 注册express服务器
+ * register the express server
  *
  * @export
- * @param {Object} options 注册选项
- * @param {express.Application} options.app express服务器对象
- * @param {string|Array<string>} options.routesDir 要扫描的路由目录
+ * @param {Object} options register options
+ * @param {express.Application} options.app express server obj
+ * @param {string|Array<string>} options.routesDir the router dirs need scanned
  */
 export function register (options) {
   if (Object.prototype.toString(options) !== '[object Object]') {
@@ -55,7 +55,7 @@ export function register (options) {
     throw new Error('the argument options must have a routesDir field!')
   }
   app = options.app
-  // 支持扫描多个路由目录
+  // support scan multiple dirs
   const routesDirs = typeof options.routesDir === 'string' ? [options.routesDir] : options.routesDir
   routesDirs.forEach(dir => {
     scanDirModules(dir)
@@ -63,31 +63,31 @@ export function register (options) {
 }
 
 /**
- * Router 类装饰器，使用在 class 上，生成一个带有共通前缀和中间件的路由
+ * Router class decorators，generate a router with common prefix and middlewares
  *
  * @export
- * @param {string|RegExp} prefix 路由前缀
- * @param {express.RouterOptions} routerOptions 路由选项
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} prefix router path prefix
+ * @param {express.RouterOptions} routerOptions express router options
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {ClassDecorator}
  */
 export function Router (prefix, routerOptions, ...middlewares) {
-  // 判断是否有路由选项，没有则当做中间件来使用
+  // judge if routerOptions exist. If not, then make it as a middleware
   if (typeof routerOptions === 'function') {
     middlewares.unshift(routerOptions)
     routerOptions = undefined
   }
 
   /**
-   * 为类生成一个 router,
-   * 该装饰器会在所有方法装饰器执行完后才执行
+   * generate the router obj for class,
+   * it will excute after all method decorators excute over
    *
-   * @param {express.Handler} target 路由类对象
+   * @param {express.Handler} target the request handler
    */
   function mount (target) {
     const router = express.Router(routerOptions)
     const _routeMethods = target.prototype._routeMethods
-    // 遍历挂载路由
+    // iterate the handlers stored on class prototype and mount them on the router obj
     for (const method in _routeMethods) {
       if (_routeMethods.hasOwnProperty(method)) {
         const methods = _routeMethods[method]
@@ -107,19 +107,19 @@ export function Router (prefix, routerOptions, ...middlewares) {
 }
 
 /**
- * 生成对应HTTP请求方法的装饰器
+ * generate the decorators for the http method arguement
  *
- * @param {string} httpMethod 请求方法
- * @param {string|RegExp} pattern 请求路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string} httpMethod http method name
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 function generateMethodDecorator (httpMethod, pattern, middlewares) {
   return function (target, methodName, descriptor) {
+    // create the obj to store the router handler
     if (!target._routeMethods) {
       target._routeMethods = {}
     }
-    // 为自定义方法生成对应的方法存储对象
     if (!target._routeMethods[httpMethod]) {
       target._routeMethods[httpMethod] = {}
     }
@@ -129,11 +129,11 @@ function generateMethodDecorator (httpMethod, pattern, middlewares) {
 }
 
 /**
- * GET 方法装饰器
+ * GET method decorators
  *
  * @export
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function Get (pattern, ...middlewares) {
@@ -141,11 +141,11 @@ export function Get (pattern, ...middlewares) {
 }
 
 /**
- * POST 方法装饰器
+ * POST method decorators
  *
  * @export
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function Post (pattern, ...middlewares) {
@@ -153,11 +153,11 @@ export function Post (pattern, ...middlewares) {
 }
 
 /**
- * PUT 方法装饰器
+ * PUT method decorators
  *
  * @export
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function Put (pattern, ...middlewares) {
@@ -165,11 +165,11 @@ export function Put (pattern, ...middlewares) {
 }
 
 /**
- * DELETE 方法装饰器
+ * DELETE method decorators
  *
  * @export
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function Delete (pattern, ...middlewares) {
@@ -177,11 +177,11 @@ export function Delete (pattern, ...middlewares) {
 }
 
 /**
- * DELETE 方法装饰器
+ * DELETE method decorators
  *
  * @export
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function All (pattern, ...middlewares) {
@@ -189,14 +189,28 @@ export function All (pattern, ...middlewares) {
 }
 
 /**
- * 自定义方法装饰器
+ * custom method decorators which express supports
  *
  * @export
- * @param {string} httpMethod http方法名
- * @param {string|RegExp} pattern 路由路径
- * @param {Array<express.Handler>} middlewares 中间件数组
+ * @param {string} httpMethod http method name
+ * @param {string|RegExp} pattern router path
+ * @param {Array<express.Handler>} middlewares middlewares array
  * @returns {MethodDecorator}
  */
 export function Custom (httpMethod, pattern, ...middlewares) {
   return generateMethodDecorator(httpMethod.toLowerCase(), pattern, middlewares)
+}
+
+/**
+ * add a event listener on express app
+ *
+ * @export
+ * @param {string} eventName
+ * @returns {MethodDecorator}
+ */
+export function Event (eventName) {
+  return function (target, methodName, descriptor) {
+    app.on(eventName, target[methodName])
+    return descriptor
+  }
 }
