@@ -200,17 +200,3 @@ export function All (pattern, ...middlewares) {
 export function Custom (httpMethod, pattern, ...middlewares) {
   return generateMethodDecorator(httpMethod.toLowerCase(), pattern, middlewares)
 }
-
-/**
- * add a event listener on express app
- *
- * @export
- * @param {string} eventName
- * @returns {MethodDecorator}
- */
-export function Event (eventName) {
-  return function (target, methodName, descriptor) {
-    app.on(eventName, target[methodName])
-    return descriptor
-  }
-}
